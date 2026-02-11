@@ -1,0 +1,41 @@
+// Schema Prisma para Memória de Agentes Multi-Threaded
+// Permite handover assíncrono com contexto persistente
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Ajuste para "sqlite" em dev se necessário
+  url      = env("DATABASE_URL")
+}
+
+// Thread principal de execução de agentes
+// Cada thread representa um fluxo completo de trabalho (ex: pesquisa → redação → validação)
+model AgentThread {
+  id            String         @id @default(cuid())
+  externalId    String         @unique // ID para vincular ao Clerk, usuário ou sistema externo
+  status        String         @default("IDLE") // IDLE, BUSY, RESEARCH_COMPLETED, WRITING_COMPLETED, COMPLETED, FAILED
+  sharedContext Json?          // "Quadro Negro" (Blackboard Pattern) - dados acumulados entre agentes
+  messages      AgentMessage[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([externalId])
+  @@index([status])
+}
+
+// Registro de cada interação/output de um agente
+// Permite rastreabilidade completa (auditoria) e recuperação de contexto
+model AgentMessage {
+  id        String      @id @default(cuid())
+  role      String      // 'researcher', 'writer', 'validator', 'system', 'orchestrator'
+  content   String      @db.Text
+  metadata  Json?       // Outputs estruturados validados pelo Zod (ResearchOutput, ContentOutput, etc.)
+  threadId  String
+  thread    AgentThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@index([threadId])
+  @@index([role])
+}

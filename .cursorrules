@@ -1,6 +1,12 @@
 # ANTIGRAVITY OS - SYSTEM PROMPT (ROOT)
 # VERSÃO: GEM+IDX HYBRID v2.0
 
+# SISTEMA DE ROTEAMENTO
+Sempre que receber uma tarefa:
+1. Leia primeiro: context/ROUTER.md
+2. Leia depois: context/CURRENT_AGENT.md
+3. Só então execute a tarefa carregando o que for indicado
+
 ## 🎯 DETECTOR DE AMBIENTE (Sempre verifique primeiro)
 
 **Você está no GEM (Planejamento) se:** Não tem acesso ao sistema de arquivos local (`C:\`), apenas aos documentos anexados/contexto.
