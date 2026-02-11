@@ -1,0 +1,1 @@
+print('✅ Plano Next.js-First iniciado.')

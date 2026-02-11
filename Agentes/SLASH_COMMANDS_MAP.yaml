@@ -1,0 +1,69 @@
+# MAPA DE COMANDOS RÁPIDOS (SLASH COMMANDS) - ANTIGRAVITY v20
+# Este arquivo conecta os comandos "/" às pastas físicas reais do sistema.
+
+commands:
+  # --- PLANEJAMENTO ---
+  - command: "/plan"
+    description: "Criar arquitetura e schemas de banco"
+    agent: "BETA_Architect"
+    physical_path: "C:\\projetos\\Antigravity\\Minhas Skills\\planejando-solucoes\\SKILL.md"
+
+  - command: "/review"
+    description: "Revisar arquitetura existente"
+    agent: "BETA_Architect"
+    physical_path: "C:\\projetos\\Antigravity\\Minhas Skills\\architecture-review\\SKILL.md"
+
+  # --- CONSTRUÇÃO ---
+  - command: "/code"
+    description: "Implementar código e lógica"
+    agent: "GAMMA_Builder"
+    physical_path: "C:\\projetos\\Antigravity\\Minhas Skills\\executando-planos\\SKILL.md"
+    related_paths:
+      - "C:\\projetos\\Antigravity\\Minhas Skills\\Codando"
+      - "C:\\projetos\\Antigravity\\Snippets"
+
+  - command: "/ui"
+    description: "Criar interfaces visuais"
+    agent: "GAMMA_Builder"
+    physical_path: "C:\\projetos\\Antigravity\\Minhas Skills\\designer-ui\\SKILL.md"
+    related_paths:
+      - "C:\\projetos\\Antigravity\\Ui_Kit_Design"
+      - "C:\\projetos\\Antigravity\\Minhas Skills\\ux-pro-max"
+
+  # --- CORREÇÃO & QUALIDADE ---
+  - command: "/fix"
+    description: "Investigar e corrigir bugs"
+    agent: "ETA_Investigator"
+    physical_path: "C:\\projetos\\Antigravity\\Minhas Skills\\solucionando-erros\\SKILL.md"
+
+  - command: "/audit"
+    description: "Auditoria de qualidade e segurança"
+    agent: "DELTA_Auditor"
+    physical_path: "C:\\projetos\\Antigravity\\Minhas Skills\\verificando-conclusao\\SKILL.md"
+
+  # --- ESTRATÉGIA ---
+  - command: "/brain"
+    description: "Brainstorming e refinamento de ideias"
+    agent: "EPSILON_Growth"
+    physical_path: "C:\\projetos\\Antigravity\\Minhas Skills\\brainstorming\\SKILL.md"
+
+  - command: "/market"
+    description: "Análise de mercado e competidores"
+    agent: "EPSILON_Growth"
+    physical_path: "C:\\projetos\\Antigravity\\Minhas Skills\\explorando-mercado\\SKILL.md"
+
+  - command: "/seo"
+    description: "Otimização para buscadores"
+    agent: "EPSILON_Growth"
+    physical_path: "C:\\projetos\\Antigravity\\Minhas Skills\\pesquisando-web\\SKILL.md"
+
+  # --- SISTEMA ---
+  - command: "/genesis"
+    description: "Iniciar novo projeto (Bootstrap)"
+    agent: "ALPHA_Genesis"
+    physical_path: "C:\\projetos\\Antigravity\\Minhas Skills\\llm-app-blueprint\\SKILL.md"
+
+  - command: "/optimize"
+    description: "Melhorar performance e custos"
+    agent: "ZETA_Optimizer"
+    physical_path: "C:\\projetos\\Antigravity\\Minhas Skills\\observability-playbook\\SKILL.md"
