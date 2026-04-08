@@ -1,0 +1,27 @@
+{
+  "version": "3.1.0",
+  "budgets": {
+    "grep": {
+      "max": 500,
+      "alert_at": 400
+    },
+    "agent_call": {
+      "max": 1000,
+      "alert_at": 800
+    },
+    "code_gen": {
+      "max": 8000,
+      "alert_at": 6400
+    },
+    "debug": {
+      "max": 3000,
+      "alert_at": 2400
+    }
+  },
+  "global": {
+    "session_max": 50000,
+    "alert_at_pct": 80,
+    "hard_stop_at_pct": 95
+  },
+  "enforcement": "soft"
+}

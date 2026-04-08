@@ -1,0 +1,8 @@
+{
+  "name": "BETA",
+  "source": "Agentes/BETA_Prime.md",
+  "cost_tokens": 200,
+  "mode": "GEM_only",
+  "trigger": "planning_needed",
+  "fallback": "THETA"
+}

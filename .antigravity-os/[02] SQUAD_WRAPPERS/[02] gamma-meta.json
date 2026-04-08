@@ -1,0 +1,8 @@
+{
+  "name": "GAMMA",
+  "source": "Agentes/GAMMA_Prime.md",
+  "cost_tokens": 100,
+  "mode": "IDX_only",
+  "trigger": "build_needed",
+  "fallback": "THETA"
+}

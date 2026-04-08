@@ -1,0 +1,8 @@
+{
+  "name": "DELTA",
+  "source": "Agentes/DELTA_Prime.md",
+  "cost_tokens": 120,
+  "mode": "audit",
+  "trigger": "pre_commit",
+  "fallback": "THETA"
+}

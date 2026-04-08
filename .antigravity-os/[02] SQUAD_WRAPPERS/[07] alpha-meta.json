@@ -1,0 +1,8 @@
+{
+  "name": "ALPHA",
+  "source": "Agentes/ALPHA_Prime.md",
+  "cost_tokens": 60,
+  "mode": "bootstrap",
+  "trigger": "new_project",
+  "fallback": "THETA"
+}

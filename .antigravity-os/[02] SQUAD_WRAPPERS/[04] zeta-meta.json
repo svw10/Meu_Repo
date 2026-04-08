@@ -1,0 +1,8 @@
+{
+  "name": "ZETA",
+  "source": "Agentes/ZETA_Prime.md",
+  "cost_tokens": 80,
+  "mode": "optimize",
+  "trigger": "slow_performance",
+  "fallback": "THETA"
+}

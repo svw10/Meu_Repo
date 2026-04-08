@@ -1,0 +1,13 @@
+{
+  "rules": {
+    "if_input_lt_100_chars": "use:LEXICAL_GREP",
+    "if_code_snippet": "use:GREP",
+    "if_architecture": "use:RAG",
+    "if_external_api": "use:MCP"
+  },
+  "priority": {
+    "speed": "GREP",
+    "accuracy": "RAG",
+    "cost": "LEXICAL"
+  }
+}

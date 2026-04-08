@@ -1,0 +1,29 @@
+{
+  "version": "3.1.0",
+  "modes": {
+    "GEM": {
+      "agents": [
+        "THETA",
+        "BETA",
+        "EPSILON",
+        "ALPHA"
+      ],
+      "forbidden": [
+        "write_file",
+        "execute_code"
+      ]
+    },
+    "IDX": {
+      "agents": [
+        "THETA",
+        "GAMMA",
+        "DELTA",
+        "ZETA",
+        "ETA"
+      ],
+      "requires": "PLAN.md"
+    }
+  },
+  "fallback": "IDX_safe_mode",
+  "transition": "GEM\u2192PLAN\u2192IDX\u2192EXEC\u2192DELTA_AUDIT"
+}

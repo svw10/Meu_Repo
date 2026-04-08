@@ -1,0 +1,8 @@
+{
+  "name": "ETA",
+  "source": "Agentes/ETA_Prime.md",
+  "cost_tokens": 150,
+  "mode": "debug",
+  "trigger": "error_detected",
+  "fallback": "THETA"
+}

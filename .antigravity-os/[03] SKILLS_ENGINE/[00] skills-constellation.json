@@ -1,0 +1,11 @@
+{
+  "version": "3.1.0",
+  "root": "Minhas_Skills/",
+  "lazy_load": true,
+  "cache_ttl": "24h",
+  "mapping": {
+    "01_brainstorming": "Minhas_Skills/ESTRATEGIA_DISCOVERY/01_brainstorming.md",
+    "06_codando": "Minhas_Skills/EXECUCAO_IMPLEMENTACAO/06_codando.md",
+    "12_usando_skills": "Minhas_Skills/CORE/12_usando_skills.md"
+  }
+}

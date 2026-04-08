@@ -1,0 +1,8 @@
+{
+  "name": "THETA",
+  "source": "Agentes/THETA_Prime.md",
+  "cost_tokens": 50,
+  "mode": "orchestration",
+  "trigger": "always_first",
+  "fallback": "ZETA"
+}
