@@ -1,17 +1,19 @@
-# ANTAGRAVITY OS NEURAL - CURSORRULES
+# ANTAGRAVITY OS NEURAL - CURSORRULES v3.1
 
 on_start: |
-  1. Leia .antigravity-os/[00] KERNEL/[00] quantum-loader.md (detecta modo)
+  1. Leia .antigravity-os/[00] KERNEL/[00] quantum-loader.md (detecta modo GEM/IDX)
   2. Leia .antigravity-os/[01] ORCHESTRATOR/[00] semantic-router.md
-  3. Consulte context/ROUTER.md para agente
-  4. Valide budget em [00] KERNEL/[02] token-budget-controller.json
+  3. Valide budget em .antigravity-os/[00] KERNEL/[02] token-budget-controller.json
+  4. Identifique o agente ativo via .antigravity-os/[02] SQUAD_WRAPPERS/*-meta.json
 
 on_task: |
-  - GEM: Use BETA + Minhas_Skills/ESTRATEGIA_DISCOVERY/
-  - IDX: Use GAMMA + Minhas_Skills/EXECUCAO_IMPLEMENTACAO/
-  - Sempre consulte [04] MEMORY_DNA/[00] error-dna-registry.json antes
+  - GEM (Planejamento): Ative BETA + Skills de ESTRATEGIA_DISCOVERY/
+  - IDX (Execução): Ative GAMMA + Skills de EXECUCAO_IMPLEMENTACAO/
+  - Sempre consulte .antigravity-os/[04] MEMORY_DNA/[00] error-dna-registry.json antes de codar
+  - Atualize context/CURRENT_AGENT.md ao finalizar cada etapa ou handoff
 
 forbidden: |
-  - Nunca edite Nucleo/ de dentro do projeto filho
-  - Nunca execute sem validar budget
-  - Nunca ignore modo (GEM vs IDX)
+  - Nunca edite .antigravity-os/ diretamente (use SUBMODULE_HOOKS)
+  - Nunca execute sem validar budget ou modo
+  - Nunca ignore os Gates de qualidade do SPECS_WARP
+  - Nunca arquive ou mova context/CURRENT_AGENT.md (é o estado da sessão)
