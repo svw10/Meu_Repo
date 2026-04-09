@@ -33,3 +33,10 @@ lgpd_compliance: |
   ✅ Registro apenas de metadados (hash, tipo, timestamp).
   ✅ Solicitação de consentimento explícito para PII necessária.
   ✅ Retenção máxima: 30 dias. Comando /lgpd-delete disponível.
+
+mode_transition: |
+  - Se detectar mudança de GEM→IDX ou IDX→GEM:
+    1. Rode: bash .antigravity-os/[08] SUBMODULE_HOOKS/[07] mode-transition.sh --to [gem|idx]
+    2. Execute /clear
+    3. Carregue regras do modo alvo
+    4. Anuncie transição e aguarde input
