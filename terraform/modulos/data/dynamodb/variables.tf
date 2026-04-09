@@ -1,5 +1,0 @@
-﻿variable "table_name" { type = string }
-variable "hash_key" { type = string }
-variable "range_key" { type = string; default = null }
-variable "ttl_attribute" { type = string; default = null }
-variable "tags" { type = map(string) }

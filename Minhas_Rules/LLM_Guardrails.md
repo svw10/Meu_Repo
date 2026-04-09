@@ -1,121 +1,127 @@
-name: llm-guardrails
-description: Guardrails de custo, qualidade, segurança e MCP para uso de LLMs.
-version: 3.1.0
+name: llm_guardrails
+description: Proteções de segurança para uso de LLMs no Antigravity OS
+version: 3.0.0
 ---
 
-# LLM GUARDRAILS (Proteções de IA)
+# LLM GUARDRAILS
 
-## 1. Controle de Custo
+> **PRINCÍPIO:** LLMs alucinam. Nosso trabalho é impedir que isso quebre o sistema.
 
-| Métrica | Limite | Ação ao Atingir |
+---
+
+## 🛡️ GUARDRAIL 1 - OUTPUT ESTRUTURADO OBRIGATÓRIO
+
+**Regra:** Toda saída de LLM deve ser validada por Zod.
+
+**Implementação:**
+```typescript
+const ParsedSchema = z.object({
+  code: z.string(),
+  explanation: z.string().optional()
+});
+const result = ParsedSchema.parse(llmResponse);
+```
+
+**Proibido:** Usar `JSON.parse()` direto ou `response.text` sem validação.
+
+---
+
+## 🛡️ GUARDRAIL 2 - NUNCA CONFIE NO LLM
+
+**Regras:**
+- LLM não acessa banco de dados diretamente
+- LLM não executa código em produção
+- LLM não tem acesso a secrets/variáveis de ambiente
+
+**Padrão seguro:**
+```
+Usuário → LLM (gera rascunho) → Agente valida → Runtime executa
+```
+
+---
+
+## 🛡️ GUARDRAIL 3 - PROMPT INJECTION DEFENSE
+
+**Regras:**
+- Remover instruções do usuário que pareçam system prompts
+- Validar input com Zod antes de enviar ao LLM
+- Nunca concatenar user input direto no system prompt
+
+---
+
+## 🛡️ GUARDRAIL 4 - CUSTO CONTROLADO
+
+**Regras:**
+- Máximo de tokens por requisição: definido em `workflow_types.ts`
+- Fallback para modelo menor se custo exceder threshold
+- Log de custo em toda chamada LLM
+
+**Alertas:** Amarelo (80%), Vermelho (100% → fallback)
+
+---
+
+## 🛡️ GUARDRAIL 5 - TEMPERATURA E CRIATIVIDADE
+
+| Tarefa | Temperatura | Por quê |
 |:---|:---|:---|
-| Custo/request | $0.05 | Trocar para modelo mais barato |
-| Custo/dia | $5.00 | Alertar admin, pausar jobs não-críticos |
-| Tokens/request | 4k | Truncar ou resumir contexto |
-| Tokens/mês | 100k | Revisar arquitetura, sugerir cache |
+| Geração de código | 0.0-0.2 | Determinístico |
+| Explicação | 0.3-0.5 | Clara |
+| Brainstorming | 0.7-0.9 | Criativo |
+| Validação | 0.0 | Estrito |
 
-## 2. Routing de Modelos (Adaptive)
+---
 
-```yaml
-routing_strategy: adaptive
+## 🛡️ GUARDRAIL 6 - RAG SEGURO
 
-tiers:
-  simple:
-    models: [gemini-flash, llama-3.1-8b]
-    cost_max: 0.001
-    use_for: [classificacao, resumo curto, validacao]
-    
-  standard:
-    models: [gpt-4o-mini, claude-3-haiku]
-    cost_max: 0.01
-    use_for: [geracao de codigo, explicacoes]
-    
-  complex:
-    models: [claude-3.5-sonnet, gpt-4o]
-    cost_max: 0.05
-    use_for: [arquitetura, debug complexo, criacao de specs]
-    
-  mcp:
-    models: [claude-3.5-sonnet]  # Melhor para tool use
-    cost_max: 0.03
-    use_for: [chamadas MCP, integracoes externas]
-    
-  fallback:
-    models: [ollama-local]
-    cost_max: 0
-    use_for: [quando cloud falhar ou custo excedido]
-3. Segurança de Prompt
-Input Sanitization
-TypeScript
-Copy
-// Sempre validar inputs antes de enviar ao LLM
-function sanitizeInput(input: string): string {
-  // Remove potenciais injeções de system prompt
-  const blocked = [
-    /ignore previous instructions/gi,
-    /system prompt/gi,
-    /you are now/gi,
-    /new role:/gi
-  ];
-  
-  let cleaned = input.slice(0, 4000); // Limita tamanho
-  
-  blocked.forEach(pattern => {
-    cleaned = cleaned.replace(pattern, '[REDACTED]');
-  });
-  
-  return cleaned;
-}
-Output Validation
-TypeScript
-Copy
-// Sempre validar outputs estruturados
-const result = await llm.generate(prompt);
-const parsed = safeJsonParse(result); // Com fallback
+**Regras:**
+- Filtre documentos por relevância (score > 0.7)
+- Limite de contexto: máximo 50% da janela do modelo
+- Cite fontes: toda informação do RAG deve ter `source_id`
 
-if (!parsed) {
-  console.error("LLM output inválido, usando fallback");
-  return fallbackResponse();
-}
-4. MCP (Model Context Protocol)
-Quando usar MCP
-Agente precisa acessar dados locais (arquivos, DB SQLite)
-Integração com APIs legadas sem SDK oficial
-Ferramentas especializadas (calculadora, regex complexo)
-Quando NÃO usar MCP
-Operações simples (use skills diretamente)
-Dados já disponíveis via API REST
-Processamento batch (use Inngest)
-Exemplo de Tool MCP
-TypeScript
-Copy
-// tools/calculator.ts
-import { z } from 'zod';
+---
 
-export const calculatorTool = {
-  name: "calculate",
-  description: "Executa cálculos matemáticos complexos",
-  parameters: z.object({
-    expression: z.string().describe("Expressão matemática válida")
-  }),
-  async execute({ expression }) {
-    // Validação rigorosa antes de eval
-    const safeExpr = expression.replace(/[^0-9+\-*/().]/g, '');
-    return { result: Function('"use strict"; return (' + safeExpr + ')')() };
-  }
-};
-5. Observabilidade
-Todo uso de LLM deve logar:
-JSON
-Copy
+## 🛡️ GUARDRAIL 7 - FALLBACK OBRIGATÓRIO
+
+**Cadeia de fallback:**
+```
+1. Claude 3.5 Sonnet (primário)
+2. GPT-4o (secundário)
+3. GPT-4o-mini (terciário)
+4. Resposta cacheada ou erro graceful
+```
+
+---
+
+## 🛡️ GUARDRAIL 8 - AUDITORIA COMPLETA
+
+**Log obrigatório:**
+```typescript
 {
-  "timestamp": "2024-01-15T10:30:00Z",
-  "model": "claude-3.5-sonnet",
-  "tokens_input": 1500,
-  "tokens_output": 320,
-  "cost_usd": 0.012,
-  "latency_ms": 850,
-  "cache_hit": false,
-  "mcp_tools_used": ["query_database"],
-  "skill_invoked": "planejando-solucoes"
+  timestamp: ISOString,
+  model: string,
+  tokens_input: number,
+  tokens_output: number,
+  cost_usd: number,
+  latency_ms: number,
+  success: boolean,
+  error_type?: string
 }
+```
+
+**Retenção:** 90 dias no Neon.
+
+---
+
+## ⚠️ VIOLAÇÕES CRÍTICAS
+
+| Violação | Consequência |
+|:---|:---|
+| Executar código de LLM sem validação | Bloqueio imediato, revisão de segurança |
+| Expor secrets em prompt | Rotação de credenciais obrigatória |
+| Ignorar fallback | Alerta para ZETA |
+| Ultrapassar orçamento | Suspensão de chamadas LLM |
+
+---
+FIM DOS GUARDRAILS - Segurança primeiro, velocidade depois.
+```
+
