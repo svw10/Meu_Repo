@@ -160,3 +160,10 @@ Se qualquer item = NÃO → Corrija antes de enviar.
 **Versão:** 3.1.1 | **Última Atualização:** $(date +%Y-%m-%d)
 **Regras de Segurança:** `.antigravity-os/[06] SECURITY_DRL/`
 **Engenharia de Contexto:** `.antigravity-os/[05] TOKENOMICS/[04] context-cache.md`
+
+spec_creation: |
+  - Ao criar SPEC, siga estritamente `.antigravity-os/[07] SPECS_WARP/[05] spec-creation-protocol.md`
+  - FASE 1: RAG (Leia índice → skill específica → modo UI)
+  - FASE 2: Entrevista (1 pergunta/vez, Gate 1.5)
+  - FASE 3: Geração (Validação Zod)
+  - NUNCA pule fases.
