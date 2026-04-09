@@ -138,6 +138,7 @@
 /plan           → Ativa modo BETA para planejamento
 /build          → Ativa modo GAMMA para execução
 /audit          → Aciona DELTA para revisão pré-commit
+/retro          → Dispara o Project Sweeper (aprendizado pós-projeto)
 ```
 
 ---
