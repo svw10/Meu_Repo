@@ -1,1 +1,0 @@
-print('✅ Índice atualizado com sucesso.')
