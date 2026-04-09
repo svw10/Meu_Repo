@@ -1,19 +1,35 @@
 {
   "version": "3.1.0",
+  "description": "Sistema Genético de Erros - Integração com Logs/",
+  "integration_path": "Logs/",
   "schema": {
-    "hash": "md5(context+error)",
-    "markers": [
-      "stack_hash",
-      "tech_stack",
-      "agent"
-    ],
-    "vaccine": "solu\u00e7\u00e3o_aplicada",
-    "immunity": [
-      "project",
-      "all_projects",
-      "stack_omega"
-    ],
-    "ttl_days": 90
+    "error_id": "string (md5 hash de contexto+erro)",
+    "timestamp": "ISO8601",
+    "mutation": "tipo_do_erro (ex: 'db_connection_fail', 'cors_block', 'token_leak')",
+    "context_snapshot": "trecho relevante do código/prompt que causou o erro",
+    "agent_involved": "nome do agente (ex: 'GAMMA', 'ETA')",
+    "vaccine": "solução aplicada passo a passo",
+    "immunity_scope": ["projeto_atual", "stack_omega", "todos_projetos"],
+    "prevention_prompt": "instrução curta (<50 palavras) para injetar no system prompt antes de tarefas similares",
+    "ttl_days": 90,
+    "status": "active | archived"
   },
-  "integration": "L\u00ea logs.md e converte para DNA"
+  "usage_rules": [
+    "1. Antes de codar, consulte este registry por 'mutation' e 'tech_stack'.",
+    "2. Se houver match, injete 'prevention_prompt' no contexto inicial.",
+    "3. Ao resolver novo erro, registre imediatamente usando o schema acima.",
+    "4. Use TTL para arquivar erros não recorrentes após 90 dias."
+  ],
+  "example_entry": {
+    "error_id": "a1b2c3d4",
+    "timestamp": "2026-02-20T10:00:00Z",
+    "mutation": "env_vars_not_loaded",
+    "context_snapshot": "PrismaClient init sem verificação de DATABASE_URL",
+    "agent_involved": "GAMMA",
+    "vaccine": "Adicionar validação Zod de envs antes de instanciar PrismaClient",
+    "immunity_scope": ["stack_omega", "todos_projetos"],
+    "prevention_prompt": "Antes de iniciar DB client, valide TODAS as env vars com schema Zod. Falhe rápido se ausente.",
+    "ttl_days": 90,
+    "status": "active"
+  }
 }

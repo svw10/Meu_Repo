@@ -1,11 +1,20 @@
 {
   "version": "3.1.0",
-  "root": "Minhas_Skills/",
+  "skills_root": "Minhas_Skills/",
   "lazy_load": true,
   "cache_ttl": "24h",
   "mapping": {
-    "01_brainstorming": "Minhas_Skills/ESTRATEGIA_DISCOVERY/01_brainstorming.md",
-    "06_codando": "Minhas_Skills/EXECUCAO_IMPLEMENTACAO/06_codando.md",
-    "12_usando_skills": "Minhas_Skills/CORE/12_usando_skills.md"
+    "brainstorming": "Minhas_Skills/ESTRATEGIA_DISCOVERY/01_brainstorming.md",
+    "planning": "Minhas_Skills/ESTRATEGIA_DISCOVERY/02_planejando_solucoes.md",
+    "execution": "Minhas_Skills/EXECUCAO_IMPLEMENTACAO/03_executando_planos.md",
+    "debugging": "Minhas_Skills/QUALIDADE_DEBUG/04_solucionando_erros.md",
+    "validation": "Minhas_Skills/QUALIDADE_DEBUG/05_verificando_conclusao.md",
+    "coding": "Minhas_Skills/EXECUCAO_IMPLEMENTACAO/06_codando.md",
+    "external_comms": "Minhas_Skills/EXECUCAO_IMPLEMENTACAO/07_comunicando_externo.md",
+    "market_analysis": "Minhas_Skills/ESTRATEGIA_DISCOVERY/08_explorando_mercados.md",
+    "memory_mgmt": "Minhas_Skills/DOMINIO_ECOMMERCE/09_gerenciando_memoria.md",
+    "llm_blueprint": "Minhas_Skills/DOMINIO_IA/10_llm_app_blueprint.md",
+    "web_research": "Minhas_Skills/DOMINIO_IA/11_pesquisando_web.md",
+    "using_skills": "Minhas_Skills/CORE/12_usando_skills.md"
   }
 }

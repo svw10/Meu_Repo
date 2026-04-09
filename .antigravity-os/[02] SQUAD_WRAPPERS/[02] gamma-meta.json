@@ -1,8 +1,16 @@
 {
-  "name": "GAMMA",
-  "source": "Agentes/GAMMA_Prime.md",
-  "cost_tokens": 100,
-  "mode": "IDX_only",
-  "trigger": "build_needed",
-  "fallback": "THETA"
+  "version": "1.0",
+  "agent": "GAMMA",
+  "description": "Builder & Executor (Escreve Código)",
+  "source_file": "Agentes/GAMMA_Builder.md",
+  "cost_category": "high",
+  "execution_context": "IDX_only",
+  "behavior_rules": [
+    "Receba o plano do BETA ou instruções do THETA.",
+    "Implemente código estritamente seguindo o PRD/SPEC.",
+    "Valide cada alteração com testes ou linting.",
+    "Nunca planeje arquitetura (use BETA para isso).",
+    "Se travar, chame o ETA (Investigator)."
+  ],
+  "fallback": "THETA (Orchestrator)"
 }

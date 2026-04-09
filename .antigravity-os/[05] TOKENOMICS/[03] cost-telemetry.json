@@ -1,0 +1,45 @@
+{
+  "version": "3.1.0",
+  "description": "Telemetria de Custo em Tempo Real por Feature/Sessão",
+  "integration_path": "Logs/",
+  "schema": {
+    "session_id": "string (uuid)",
+    "feature_name": "string",
+    "agent_involved": "string (ex: GAMMA, BETA)",
+    "model_used": "string (ex: haiku, sonnet, opus)",
+    "tokens_input": "integer",
+    "tokens_output": "integer",
+    "estimated_cost_usd": "float",
+    "duration_seconds": "integer",
+    "status": "success | warning | budget_exceeded",
+    "timestamp": "ISO8601"
+  },
+  "logging_rules": [
+    "1. Inicie o registro no início de cada task com status 'pending'.",
+    "2. Atualize tokens e custo a cada bloco de código gerado.",
+    "3. Finalize com status 'success' ou 'budget_exceeded' se ultrapassar 90% do budget.",
+    "4. Grave entrada completa em Logs/telemetry.log ao final da sessão.",
+    "5. Se 'budget_exceeded', acione automaticamente o ZETA (Otimizador) para refatorar o prompt ou dividir a task."
+  ],
+  "aggregation": {
+    "per_sprint": "some(tokens) + sum(cost) group by feature_name",
+    "per_agent": "avg(duration) + total_cost group by agent_involved",
+    "alert_thresholds": {
+      "cost_per_feature": 0.50,
+      "tokens_per_minute": 5000,
+      "retry_loops": 3
+    }
+  },
+  "example_entry": {
+    "session_id": "sess_9f8a7b",
+    "feature_name": "auth_login_flow",
+    "agent_involved": "GAMMA",
+    "model_used": "sonnet",
+    "tokens_input": 1200,
+    "tokens_output": 850,
+    "estimated_cost_usd": 0.012,
+    "duration_seconds": 45,
+    "status": "success",
+    "timestamp": "2026-02-20T14:30:00Z"
+  }
+}

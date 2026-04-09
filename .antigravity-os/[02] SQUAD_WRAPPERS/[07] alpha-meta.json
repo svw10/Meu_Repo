@@ -1,8 +1,16 @@
 {
-  "name": "ALPHA",
-  "source": "Agentes/ALPHA_Prime.md",
-  "cost_tokens": 60,
-  "mode": "bootstrap",
-  "trigger": "new_project",
-  "fallback": "THETA"
+  "version": "1.0",
+  "agent": "ALPHA",
+  "description": "Genesis & Bootstrap (Inicialização de Projeto)",
+  "source_file": "Agentes/ALPHA_Genesis.md",
+  "cost_category": "low",
+  "execution_context": "bootstrap_mode",
+  "behavior_rules": [
+    "Configure estrutura inicial de pastas e arquivos base.",
+    "Instale dependências e configure ambiente (.env, git, etc.).",
+    "Valide se o projeto segue os padrões de Minhas_Rules/.",
+    "Gere README e documentação de setup inicial.",
+    "Entregue o projeto pronto para o THETA orquestrar."
+  ],
+  "fallback": "THETA (Orchestrator)"
 }

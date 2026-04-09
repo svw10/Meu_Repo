@@ -1,8 +1,15 @@
 {
-  "name": "THETA",
-  "source": "Agentes/THETA_Prime.md",
-  "cost_tokens": 50,
-  "mode": "orchestration",
-  "trigger": "always_first",
-  "fallback": "ZETA"
+  "version": "1.0",
+  "agent": "THETA",
+  "description": "Orquestrador Global e Roteador de Tarefas",
+  "source_file": "Agentes/THETA_Orchestrator.md",
+  "cost_category": "low",
+  "execution_context": "always_first",
+  "behavior_rules": [
+    "Leia o input do usuário e classifique a intenção.",
+    "Defina o modo de operação (GEM/IDX) baseado no Quantum Loader.",
+    "Selecione o agente especialista (GAMMA, BETA, etc.) ou Skill necessária.",
+    "Monitore o consumo de tokens e alerte se próximo do limite."
+  ],
+  "fallback": "ZETA (Otimizador)"
 }

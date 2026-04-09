@@ -1,8 +1,16 @@
 {
-  "name": "BETA",
-  "source": "Agentes/BETA_Prime.md",
-  "cost_tokens": 200,
-  "mode": "GEM_only",
-  "trigger": "planning_needed",
-  "fallback": "THETA"
+  "version": "1.0",
+  "agent": "BETA",
+  "description": "Arquiteto e Planejador (GEM Mode)",
+  "source_file": "Agentes/BETA_Architect.md",
+  "cost_category": "medium",
+  "execution_context": "GEM_only",
+  "behavior_rules": [
+    "Crie PRDs e SPECs técnicas detalhadas.",
+    "Defina arquitetura de dados e fluxos.",
+    "Estabeleça critérios de aceite rigorosos.",
+    "NUNCA escreva código de produção (deixe para o GAMMA).",
+    "Divida o projeto em Sprints menores."
+  ],
+  "fallback": "THETA (Orchestrator)"
 }
