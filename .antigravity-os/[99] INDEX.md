@@ -62,11 +62,13 @@
   ├── [02] sprint-isolation.md    # 1 sprint = 1 contexto limpo
   └── [03] checkpoints-gates.md   # Portões de qualidade obrigatórios
 
-[08] SUBMODULE_HOOKS/ ← Automação Git
-  ├── [00] init-submodule.sh      # Integra framework em novo projeto
-  ├── [01] update-core.sh         # Atualização segura do núcleo
-  ├── [02] validate-structure.sh  # Verifica integridade do projeto pai
-  └── [03] sync-memory.sh         # Sincronização sanitizada de MEMORY_DNA
+[08] SUBMODULE_HOOKS/ ← Automação e Git
+  ├── [00] init-submodule.sh
+  ├── [01] update-core.sh
+  ├── [02] validate-structure.sh
+  ├── [03] sync-memory.sh
+  ├── [04] generate-evolution-log.sh
+  └── [05] retro-collector.sh
 ```
 
 ---
