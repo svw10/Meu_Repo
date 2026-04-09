@@ -69,6 +69,10 @@
   ├── [03] sync-memory.sh
   ├── [04] generate-evolution-log.sh
   └── [05] retro-collector.sh
+
+[09] RETROSPECTIVE/   ← Aprendizado Contínuo
+  ├── [00] project-sweeper.md  # Workflow /retro
+  └── evolution-log.md         # Histórico de versões
 ```
 
 ---
