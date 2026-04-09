@@ -1,26 +1,25 @@
 #!/bin/bash
-# [02] VALIDATE STRUCTURE — Verificador de Integridade do Projeto
+# [02] VALIDATE STRUCTURE — Verificador de Integridade do Projeto v3.1
 # Uso: bash .antigravity-os/[08] SUBMODULE_HOOKS/[02] validate-structure.sh
-# Objetivo: Garantir que as pastas essenciais do Antigravity OS existam no projeto pai.
+# Objetivo: Garantir que as pastas essenciais do Antigravity OS existam no projeto.
 
 echo "🔍 Verificando integridade da estrutura do projeto..."
 
-# Define o diretório raiz do projeto (pai do .antigravity-os)
-PROJECT_ROOT=".."
+# Garante que roda a partir da raiz do git
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo ".")"
 
 # Lista de pastas críticas obrigatórias
 CRITICAL_FOLDERS=(
   "Agentes/"
   "Minhas_Skills/"
-  "Nucleo/"
-  "context/"
+  ".antigravity-os/"
 )
 
-# Lista de pastas recomendadas (warning se faltar)
+# Lista de arquivos/pastas recomendados (warning se faltar)
 RECOMMENDED_FOLDERS=(
-  "Logs/"
   "Minhas_Rules/"
   ".cursorrules"
+  "context/"
 )
 
 MISSING_CRITICAL=0
