@@ -30,3 +30,23 @@ Garantir que cada sprint técnica seja executada em um contexto isolado, elimina
 
 ## ⚠️ Alerta de Violação
 Se o consumo de contexto ultrapassar 60% ou a IA detectar mistura de sprints, deve parar imediatamente e solicitar `/clear` + recarregamento da sprint atual.
+
+## 🪟 JANELA DESLIZANTE (Sliding Window) — Controle de Histórico
+
+### Regra: Histórico por Sprint
+- Cada sprint tem seu próprio contexto isolado
+- Ao finalizar sprint → `/clear` → histórico arquivado
+- Nova sprint começa com contexto limpo + resumo da anterior (se necessário)
+
+### Configuração por Tipo de Tarefa
+| Tipo de Tarefa | Janela de Histórico | Justificativa |
+|---------------|-------------------|---------------|
+| Debug/Correção | Últimas 5 mensagens | Foco no erro atual |
+| Planejamento | Últimas 15 mensagens | Contexto estratégico |
+| Implementação | Últimas 10 mensagens | Balance entre contexto e custo |
+| QA/Auditoria | Histórico completo da sprint | Rastreabilidade total |
+
+### Comando: `/window <size>`
+- Define tamanho da janela deslizante para a sessão atual
+- Ex: `/window 5` → mantém apenas últimas 5 mensagens no contexto
+- Padrão: definido por tipo de tarefa (tabela acima)

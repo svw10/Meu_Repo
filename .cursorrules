@@ -40,3 +40,10 @@ mode_transition: |
     2. Execute /clear
     3. Carregue regras do modo alvo
     4. Anuncie transição e aguarde input
+
+context_engineering: |
+  - Antes de enviar prompt à LLM: consultar cache de context-cache.md
+  - Após resposta: comprimir tools/RAG conforme lazy-loader.md
+  - A cada 10 mensagens ou 70% de budget: acionar memory-summarizer.md
+  - Entre sprints: executar /clear + arquivar histórico conforme sprint-isolation.md
+  - Sempre validar: decisões-chave preservadas, PII removida, budget respeitado
