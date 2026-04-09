@@ -7,6 +7,11 @@
 3. Consulte `.antigravity-os/[02] SQUAD_WRAPPERS/*-meta.json` para agente ativo
 4. Valide budget: `.antigravity-os/[00] KERNEL/[02] token-budget-controller.json`
 
+## 📋 FLUXO DE TAREFAS (on_task)
+- Após PRD aprovado: execute `/refine-spec` antes de gerar SPEC técnica
+- BETA deve usar `[04] spec-refinement-workflow.md` para entrevista estruturada
+- NUNCA pular etapa de perguntas. 1 pergunta/vez.
+
 ## 🎯 MODO DE OPERAÇÃO
 
 ### GEM (Planejamento)
