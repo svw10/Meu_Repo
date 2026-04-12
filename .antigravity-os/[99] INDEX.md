@@ -21,12 +21,15 @@
 [00] KERNEL/          ← SEMPRE carregado primeiro
   ├── [00] quantum-loader.md      # Detecta modo GEM/IDX + fallback seguro
   ├── [01] mode-router.json       # Regras de transição entre modos
-  └── [02] token-budget-controller.json # Limites de tokens por tarefa
+  ├── [02] token-budget-controller.json # Limites de tokens por tarefa
+  ├── [03] mode-transition-protocol.md  # Protocolo de transição entre modos
+  └── [04] anxiety-detector.md    # ⭐ Detecção de degradação comportamental do modelo
 
 [01] ORCHESTRATOR/    ← Rágio de roteamento, escalação e autocorreção
   ├── [00] semantic-router.md      # Roteamento com validação de budget
   ├── [01] feedback-loop-protocol.md # ⭐ Loop autocorreção DELTA→GAMMA/ETA + escalação
-  └── [02] activation-cards.md     # ⭐ Feed Forward: briefing rápido por agente (8 cards)
+  ├── [02] activation-cards.md     # ⭐ Feed Forward: briefing rápido por agente (8 cards)
+  └── [03] handoff-artifacts-protocol.md # ⭐ Artefatos imútáveis de passagem de bastão
 
 [02] AGENTS/          ← Metadados dos 8 agentes
   ├── [00] orchestration-exec.md  # Lógica de roteamento executável
@@ -45,7 +48,8 @@
   ├── [03] cross-project-sync.md  # Sync seguro via HTTPS + sanitização
   ├── [04] memory-summarizer.md   # Sumarização de histórico de longo prazo
   ├── [05] correction-state-schema.json # ⭐ Schema do estado do Feedback Loop
-  └── [06] task-evidence-schema.json # ⭐ Test Anti-Cheat: evidências obrigatórias por task
+  ├── [06] task-evidence-schema.json # ⭐ Test Anti-Cheat: evidências obrigatórias por task
+  └── [07] handoff-artifact-schema.json # ⭐ Schema de validação dos Handoff Artifacts
 
 [05] TOKENOMICS/      ← Economia avançada de tokens
   ├── [00] tier-strategy.md       # Senior Mode, Differential Updates, Pruning
@@ -76,6 +80,10 @@
 [09] RETROSPECTIVE/   ← Aprendizado Contínuo
   ├── [00] project-sweeper.md  # Workflow /retro
   └── evolution-log.md         # Histórico de versões
+
+[11] HANDOFF_ARTIFACTS/ ← Artefatos imutáveis de passagem de bastão
+  ├── README.md                # Índice: ativos e consumidos por sprint
+  └── [timestamp]-[from]-to-[to].yaml  # Gerado por THETA a cada handoff
 ```
 
 ---

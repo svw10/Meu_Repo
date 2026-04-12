@@ -1,0 +1,148 @@
+{
+  "version": "1.0.0",
+  "description": "Schema formal de validação dos Handoff Artifacts. THETA valida contra este schema antes de salvar e usar o artefato.",
+
+  "HandoffArtifactSchema": {
+    "required": ["artifact_version", "generated_at", "generated_by", "from_agent", "to_agent", "handoff_reason", "context_summary", "next_atomic_task", "artifacts_produced", "validation_checkpoint"],
+
+    "fields": {
+      "artifact_version": { "type": "string", "enum": ["1.0"], "required": true },
+      "generated_at": { "type": "string", "format": "ISO8601", "required": true },
+      "generated_by": { "type": "string", "enum": ["THETA"], "required": true, "description": "Sempre THETA — nunca um agente gera seu próprio artefato" },
+      "from_agent": {
+        "type": "string",
+        "enum": ["ALPHA", "BETA", "GAMMA", "DELTA", "EPSILON", "ETA", "ZETA", "THETA"],
+        "required": true
+      },
+      "to_agent": {
+        "type": "string",
+        "enum": ["ALPHA", "BETA", "GAMMA", "DELTA", "EPSILON", "ETA", "ZETA", "THETA"],
+        "required": true
+      },
+      "handoff_reason": {
+        "type": "string",
+        "enum": ["PLANNED", "ANXIETY_DETECTED", "TASK_COMPLETE", "BLOCKED"],
+        "required": true,
+        "description": "PLANNED: transição normal de fase | ANXIETY_DETECTED: handoff preventivo | TASK_COMPLETE: ciclo completo | BLOCKED: precisa de input humano"
+      },
+      "context_summary": {
+        "type": "string",
+        "maxLength": 500,
+        "required": true,
+        "description": "2-5 linhas do essencial. Se ultrapassar 500 chars, está detalhado demais."
+      },
+      "artifacts_produced": {
+        "type": "array",
+        "minItems": 0,
+        "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "type": {
+              "type": "string",
+              "enum": ["PLAN", "SPECIFICATION", "TASKS", "CODE", "QA_REPORT", "ADR", "OTHER"]
+            },
+            "path": { "type": "string", "description": "Caminho relativo ao projeto" },
+            "status": { "type": "string", "enum": ["complete", "partial", "blocked"] }
+          }
+        }
+      },
+      "next_atomic_task": {
+        "type": "string",
+        "maxLength": 200,
+        "required": true,
+        "description": "1-2 linhas. Ação específica que o agente receptor deve executar PRIMEIRO."
+      },
+      "technical_debt": {
+        "type": "array",
+        "items": { "type": "string" },
+        "required": false,
+        "description": "Pendências deliberadas — o que foi deixado para depois e por quê"
+      },
+      "risks": {
+        "type": "array",
+        "required": false,
+        "items": {
+          "type": "object",
+          "fields": {
+            "severity": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+            "description": { "type": "string" }
+          }
+        }
+      },
+      "validation_checkpoint": {
+        "type": "string",
+        "maxLength": 300,
+        "required": true,
+        "description": "Como DELTA vai validar o trabalho do próximo agente — critério específico e testável"
+      },
+      "business_context": {
+        "type": "object",
+        "required": false,
+        "fields": {
+          "project": { "type": "string" },
+          "sprint": { "type": "string" },
+          "deadline": { "type": "string" },
+          "stakeholder_decisions": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "mandatory_reads": {
+        "type": "array",
+        "items": { "type": "string" },
+        "required": false,
+        "description": "Arquivos que o agente receptor DEVE ler antes de começar"
+      }
+    }
+  },
+
+  "validationRules": [
+    "generated_by DEVE ser 'THETA'. Agentes não geram seus próprios artefatos.",
+    "context_summary NÃO pode ultrapassar 500 chars. Se ultrapassar, comprir mais.",
+    "next_atomic_task deve ser específico — não pode ser 'continuar o trabalho'.",
+    "handoff_reason 'ANXIETY_DETECTED' requer que anxiety-detector.md tenha sido consultado.",
+    "Se handoff_reason = 'BLOCKED', business_context.stakeholder_decisions deve estar preenchido com o que precisa de decisão."
+  ],
+
+  "immutabilityRules": [
+    "Após salvo, o arquivo NUNCA deve ser editado.",
+    "Erros no artefato → gerar novo com sufixo _v2, _v3.",
+    "Artefatos consumidos (agente receptor começou) → adicionar campo 'consumed_at' no README.md do diretório, não no artefato.",
+    "Máximo 3 artefatos com status 'ativo' (não consumido) por sprint. Se mais → revisar fluxo."
+  ],
+
+  "example": {
+    "artifact_version": "1.0",
+    "generated_at": "2026-04-12T15:30:00Z",
+    "generated_by": "THETA",
+    "from_agent": "BETA",
+    "to_agent": "GAMMA",
+    "handoff_reason": "PLANNED",
+    "context_summary": "Sistema de checkout 70% especificado. Schema de pagamento definido (PIX + Cartão). Decisão pendente sobre reembolso automático. SPECIFICATION.md e TASKS-checkout-sprint1.md prontos.",
+    "artifacts_produced": [
+      { "type": "SPECIFICATION", "path": "docs/SPECIFICATION-checkout.md", "status": "complete" },
+      { "type": "PLAN", "path": "docs/PLAN-checkout.md", "status": "complete" },
+      { "type": "TASKS", "path": "docs/TASKS-checkout-sprint1.md", "status": "complete" }
+    ],
+    "next_atomic_task": "Implementar TASK-001: criar endpoint POST /api/checkout com validação Zod do payload de pagamento (ver docs/TASKS-checkout-sprint1.md)",
+    "technical_debt": [
+      "Reembolso automático — adiado para Sprint 2 (decisão de produto pendente)",
+      "Rate limiting no endpoint — marcado no PLAN.md como Sprint 2"
+    ],
+    "risks": [
+      { "severity": "HIGH", "description": "Race condition no debito de crédito — usar SELECT FOR UPDATE no Neon" },
+      { "severity": "LOW", "description": "Evolution API pode ter latência — já tem retry com backoff no plano" }
+    ],
+    "validation_checkpoint": "Endpoint POST /api/checkout retorna 200 com {orderId, status: 'pending'} e cria registro no Neon. PIX key inválida retorna 422. Test Anti-Cheat: typeCheck + lint + curl positivo.",
+    "business_context": {
+      "project": "E-commerce SaaS",
+      "sprint": "Sprint 1",
+      "deadline": "2026-04-20",
+      "stakeholder_decisions": ["PIX como método principal confirmado pelo usuário em 2026-04-12"]
+    },
+    "mandatory_reads": [
+      "docs/SPECIFICATION-checkout.md",
+      "docs/TASKS-checkout-sprint1.md",
+      ".antigravity-os/[01] ORCHESTRATOR/[02] activation-cards.md"
+    ]
+  }
+}

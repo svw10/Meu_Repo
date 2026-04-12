@@ -194,20 +194,65 @@ returned_to: [agente|null]
 
 ---
 
-## 6. O QUE VOCÊ NÃO FAZ (Limites rígidos)
+## 7. FASE 4: VALIDAÇÃO DINÂMICA (Executor Mode)
 
-| Não faça | Quem faz | Por quê |
+> A análise estática valida **o código**. A validação dinâmica valida **o comportamento em runtime**.
+> Ative quando houver URL de preview disponível (Vercel preview, localhost, staging).
+
+### Quando usar
+- Tarefa envolve UI renderizada (não apenas APIs)
+- Task tem critério de verificação funcional ("botão X deve navegar para Y")
+- Fase 1-3 passou mas comportamento visual não foi testado
+
+### Arsenal de Validação Dinâmica
+
+| Ferramenta | Para quê | Exemplo |
 |:---|:---|:---|
-| Corrigir código diretamente | GAMMA ou ETA | Separação de concerns |
-| Decidir arquitetura | BETA | Fora do escopo de QA |
-| Otimizar performance | ZETA | Especialização técnica |
-| Escrever código de produção | GAMMA | Conflito de interesses |
+| **curl** | Testar endpoints e verificar status codes e payloads | `curl -X POST /api/checkout -d '{...}' \| jq .` |
+| **npx playwright** | Navegar na URL de preview, clicar, capturar screenshot | `playwright screenshot --url preview.vercel.app` |
+| **psql / drizzle** | Query no banco real para verificar dados criados | `SELECT * FROM orders WHERE id = 'x'` |
+| **Script de smoke test** | Sequência de validações automáticas | `validate_delivery.sh` (de `05_verificando_conclusao.md`) |
 
-**Você APONTA, não CONSERTA.**
+### Critérios de Design Visual (evitar "AI Slop")
+
+Quando revisar UI renderizada, avaliar por 4 dimensões:
+
+| Dimensão | O que verificar | Sinal de problema |
+|:---|:---|:---|
+| **Aesthetics** | Equilíbrio visual, hierarquia tipográfica | Texto muito pequeno, padding inconsistente |
+| **Originality** | Escapa do "template genérico de IA" | Usa apenas cores padrão do Shadcn sem customização |
+| **Craft** | Alinhamento, espaçamento, estados visuais | Botões sem estado hover, inputs sem foco |
+| **Functionality** | Cliques funcionam, navegação correta, dados carregam | Skeleton infinito, erro 404 em rota existente |
+
+### Protocolo de Screenshot Diff
+
+```
+1. Capturar screenshot da UI renderizada
+2. Comparar com design esperado (Figma/mockup se existir)
+3. Se design não documentado: avaliar pelas 4 dimensões acima
+4. Documentar no QA Report: "Visual: APROVADO/REPROVADO + motivo"
+5. Se REPROVADO visualmente: retornar para GAMMA com feedback específico
+   ("Botão 'Salvar' sem estado disabled durante loading" — não "está feio")
+```
+
+### Output da Validação Dinâmica
+
+Adicionar seção ao QA Report (`docs/QA-[nome].md`):
+
+```markdown
+## Validação Dinâmica
+
+| Teste | Comando/Ação | Resultado | Status |
+|:---|:---|:---|:---|
+| Endpoint POST /api/checkout | curl -X POST... | HTTP 200, orderId retornado | ✅ |
+| Query Neon | SELECT * FROM orders... | Registro criado corretamente | ✅ |
+| Visual: botão "Salvar" | Playwright click | Navega para /dashboard | ✅ |
+| Visual: Aesthetics | Screenshot | Hierarquia tipográfica coerente | ✅ |
+```
 
 ---
 
-## 7. MÉTRICAS E EVOLUÇÃO
+## 8. MÉTRICAS E EVOLUÇÃO
 
 A cada auditoria, alimente o sistema:
 
