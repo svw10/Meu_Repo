@@ -1,0 +1,187 @@
+{
+  "version": "1.0.0",
+  "description": "Schema formal do estado de correção para o Feedback Loop Protocol. Análogo ao CorrectionNeededSchema do Harness Engineering, adaptado ao formato de meta-framework do Antigravity OS.",
+  "usage": "Lido pelo THETA para validar e persistir o estado do loop de autocorreção em context/CURRENT_AGENT.md",
+
+  "CorrectionStateSchema": {
+    "description": "Estado completo de uma correção em andamento",
+    "fields": {
+      "active": {
+        "type": "boolean",
+        "required": true,
+        "description": "Se o loop de correção está ativo para esta sprint"
+      },
+      "sprint_id": {
+        "type": "string",
+        "required": true,
+        "description": "ID da sprint em correção (ex: 'sprint-001')"
+      },
+      "attempt_count": {
+        "type": "integer",
+        "required": true,
+        "minimum": 0,
+        "maximum": 3,
+        "default": 0,
+        "description": "Número de tentativas de correção já realizadas"
+      },
+      "max_attempts": {
+        "type": "integer",
+        "required": true,
+        "default": 3,
+        "description": "Máximo de tentativas antes de escalar para humano"
+      },
+      "return_to": {
+        "type": "string",
+        "required": true,
+        "enum": ["GAMMA", "ETA", "ZETA"],
+        "description": "Agente que deve executar a correção"
+      },
+      "failed_at_gate": {
+        "type": "string",
+        "required": true,
+        "enum": ["Gate 1", "Gate 1.5", "Gate 2", "Gate 3", "Gate 4", "Gate 5"],
+        "description": "Qual portão de qualidade falhou"
+      },
+      "failed_at_step": {
+        "type": "string",
+        "required": false,
+        "description": "Detalhe interno do passo que falhou (ex: 'Fase 2 - Qualidade de Código')"
+      },
+      "issues": {
+        "type": "array",
+        "items": { "type": "string" },
+        "minItems": 1,
+        "required": true,
+        "description": "Lista de problemas críticos a corrigir (vinda do AUDIT_REPORT)"
+      },
+      "warnings": {
+        "type": "array",
+        "items": { "type": "string" },
+        "required": false,
+        "description": "Alertas não-bloqueantes identificados pelo DELTA"
+      },
+      "original_output_ref": {
+        "type": "string",
+        "required": true,
+        "description": "Caminho relativo para o output anterior em Logs/ (ex: 'Logs/sprint-001-output-attempt-0.md')"
+      },
+      "last_correction_at": {
+        "type": "string",
+        "format": "ISO8601",
+        "required": false,
+        "description": "Timestamp da última tentativa de correção"
+      },
+      "escalated": {
+        "type": "boolean",
+        "required": true,
+        "default": false,
+        "description": "Se o loop foi encerrado por escalação após esgotar tentativas"
+      },
+      "escalation_reason": {
+        "type": "string",
+        "required": false,
+        "description": "Preenchido apenas quando escalated=true. Motivo da escalação."
+      }
+    }
+  },
+
+  "ValidationResultSchema": {
+    "description": "Veredito emitido pelo DELTA após auditoria",
+    "fields": {
+      "status": {
+        "type": "string",
+        "enum": ["APPROVED", "REJECTED", "APPROVED_WITH_WARNINGS"],
+        "required": true
+      },
+      "gate": {
+        "type": "string",
+        "enum": ["Gate 1", "Gate 1.5", "Gate 2", "Gate 3", "Gate 4", "Gate 5"],
+        "required": true
+      },
+      "score": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100,
+        "required": true,
+        "description": "Score composto: 0=falha total, 100=aprovação perfeita. Threshold de aprovação: 70"
+      },
+      "critical_issues": {
+        "type": "array",
+        "items": { "type": "string" },
+        "required": true,
+        "description": "Issues bloqueantes que impedem aprovação"
+      },
+      "warnings": {
+        "type": "array",
+        "items": { "type": "string" },
+        "required": false,
+        "description": "Alertas não-bloqueantes"
+      },
+      "return_recommendation": {
+        "type": "string",
+        "enum": ["GAMMA", "ETA", "ZETA", "HUMAN", null],
+        "required": true,
+        "description": "Agente recomendado para correção. null se APPROVED."
+      }
+    }
+  },
+
+  "FeedbackLoopLogEntrySchema": {
+    "description": "Schema de cada entrada no arquivo Logs/feedback-loop.log",
+    "fields": {
+      "sprint_id": { "type": "string", "required": true },
+      "attempt": { "type": "integer", "required": true },
+      "timestamp": { "type": "string", "format": "ISO8601", "required": true },
+      "delta_verdict": { "type": "string", "enum": ["APPROVED", "REJECTED", "APPROVED_WITH_WARNINGS"], "required": true },
+      "score": { "type": "integer", "minimum": 0, "maximum": 100, "required": true },
+      "failed_gate": { "type": "string", "required": false },
+      "issues_count": { "type": "integer", "required": true },
+      "critical_issues": { "type": "array", "items": { "type": "string" }, "required": true },
+      "returned_to": { "type": "string", "enum": ["GAMMA", "ETA", "ZETA", "HUMAN", null], "required": true },
+      "escalated": { "type": "boolean", "required": true }
+    }
+  },
+
+  "thresholds": {
+    "score_min_approval": 70,
+    "max_correction_attempts": 3,
+    "escalation_trigger": "attempt_count >= max_attempts",
+    "auto_approve_score": 90,
+    "description": "score >= 90 → APPROVED automático. 70-89 → APPROVED_WITH_WARNINGS. < 70 → REJECTED."
+  },
+
+  "example_correction_state": {
+    "active": true,
+    "sprint_id": "sprint-001",
+    "attempt_count": 1,
+    "max_attempts": 3,
+    "return_to": "GAMMA",
+    "failed_at_gate": "Gate 4",
+    "failed_at_step": "Fase 3 - Segurança e Guardrails",
+    "issues": [
+      "API key hardcoded em src/config.ts:15 — mover para .env",
+      "Endpoint /api/user sem validação Zod"
+    ],
+    "warnings": [
+      "Função fetchUsers() com 62 linhas — sugestão de refatoração"
+    ],
+    "original_output_ref": "Logs/sprint-001-output-attempt-0.md",
+    "last_correction_at": "2026-04-12T10:00:00Z",
+    "escalated": false,
+    "escalation_reason": null
+  },
+
+  "example_validation_result": {
+    "status": "REJECTED",
+    "gate": "Gate 4",
+    "score": 48,
+    "critical_issues": [
+      "API key hardcoded em src/config.ts:15",
+      "Endpoint /api/user sem validação Zod"
+    ],
+    "warnings": [
+      "Função fetchUsers() com 62 linhas"
+    ],
+    "return_recommendation": "GAMMA"
+  }
+}

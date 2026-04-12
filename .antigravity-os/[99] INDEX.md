@@ -23,10 +23,10 @@
   ├── [01] mode-router.json       # Regras de transição entre modos
   └── [02] token-budget-controller.json # Limites de tokens por tarefa
 
-[01] CONFIGS/         ← Configurações globais
-  ├── [00] tier-matrix.json       # Matriz: task → tokens → model → fallback
-  ├── [01] model-routing.md       # Thresholds de confiança + escape hatch
-  └── sessions/                   # Estado da sessão atual (context, health)
+[01] ORCHESTRATOR/    ← Rágio de roteamento, escalação e autocorreção
+  ├── [00] semantic-router.md      # Roteamento com validação de budget
+  ├── [01] feedback-loop-protocol.md # ⭐ Loop autocorreção DELTA→GAMMA/ETA + escalação
+  └── [02] activation-cards.md     # ⭐ Feed Forward: briefing rápido por agente (8 cards)
 
 [02] AGENTS/          ← Metadados dos 8 agentes
   ├── [00] orchestration-exec.md  # Lógica de roteamento executável
@@ -42,7 +42,9 @@
   ├── [00] error-dna-registry.json # Erros + vacinas + prevention prompts
   ├── [01] anti-patterns-vault.md # Banco de "Nunca Repita"
   ├── [02] prevention-injector.md # Como injetar imunidade no contexto
-  └── [03] cross-project-sync.md  # Sync seguro via HTTPS + sanitização
+  ├── [03] cross-project-sync.md  # Sync seguro via HTTPS + sanitização
+  ├── [04] memory-summarizer.md   # Sumarização de histórico de longo prazo
+  └── [05] correction-state-schema.json # ⭐ NOVO: Schema do estado do Feedback Loop
 
 [05] TOKENOMICS/      ← Economia avançada de tokens
   ├── [00] tier-strategy.md       # Senior Mode, Differential Updates, Pruning

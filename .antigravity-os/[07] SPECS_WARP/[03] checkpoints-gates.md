@@ -130,8 +130,20 @@ Definir pontos de parada obrigatórios onde a IA deve validar critérios antes d
 - [ ] Telemetria registrada em `TOKENOMICS/[03] cost-telemetry.json`
 - [ ] Build limpo (`npm run build`)
 - [ ] Smoke test passando (URL responde HTTP 200)
+- [ ] Score de auditoria DELTA ≥ 70 (validar via `ValidationResultSchema`)
 
-**Ação se Falhar:** Acionar loop de correção com ETA. Se >3 retries, escalar para humano.
+**Ação se Falhar:** Acionar **Feedback Loop Protocol** (`[01] ORCHESTRATOR/[01] feedback-loop-protocol.md`):
+
+```
+DELTA emite REJECTED + score < 70
+    ↓
+THETA lê correction_loop.attempt_count em context/CURRENT_AGENT.md
+    ├── attempt_count < 3 → Correction Briefing → retorna a GAMMA ou ETA
+    └── attempt_count >= 3 → ESCALAÇÃO HUMANA (sprint marcada "blocked")
+```
+
+**Schema de estado:** `[04] MEMORY_DNA/[05] correction-state-schema.json`  
+**Log obrigatório:** `Logs/feedback-loop.log` (entrada por tentativa)
 
 ---
 
