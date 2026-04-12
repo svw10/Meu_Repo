@@ -44,7 +44,8 @@
   ├── [02] prevention-injector.md # Como injetar imunidade no contexto
   ├── [03] cross-project-sync.md  # Sync seguro via HTTPS + sanitização
   ├── [04] memory-summarizer.md   # Sumarização de histórico de longo prazo
-  └── [05] correction-state-schema.json # ⭐ NOVO: Schema do estado do Feedback Loop
+  ├── [05] correction-state-schema.json # ⭐ Schema do estado do Feedback Loop
+  └── [06] task-evidence-schema.json # ⭐ Test Anti-Cheat: evidências obrigatórias por task
 
 [05] TOKENOMICS/      ← Economia avançada de tokens
   ├── [00] tier-strategy.md       # Senior Mode, Differential Updates, Pruning

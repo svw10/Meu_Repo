@@ -1,0 +1,171 @@
+{
+  "version": "1.0.0",
+  "description": "Schema formal de evidências de conclusão de task (Test Anti-Cheat). DELTA valida este schema antes de aceitar qualquer task como COMPLETED.",
+  "usage": "GAMMA preenche ao finalizar cada task. DELTA valida contra este schema antes de emitir APPROVED.",
+
+  "TaskEvidenceSchema": {
+    "description": "Evidências obrigatórias para marcar uma task como concluída",
+    "fields": {
+      "taskId": {
+        "type": "string",
+        "required": true,
+        "pattern": "TASK-\\d{3}",
+        "description": "ID da task (ex: TASK-001)"
+      },
+      "tasksFile": {
+        "type": "string",
+        "required": true,
+        "description": "Caminho do TASKS.md referenciado (ex: 'docs/TASKS-auth-sprint1.md')"
+      },
+      "typeCheckPassed": {
+        "type": "boolean",
+        "required": true,
+        "description": "true se 'npx tsc --noEmit' executou sem erros"
+      },
+      "lintPassed": {
+        "type": "boolean",
+        "required": true,
+        "description": "true se 'npm run lint' passou sem erros críticos"
+      },
+      "buildPassed": {
+        "type": "boolean",
+        "required": false,
+        "description": "true se 'npm run build' passou. Obrigatório apenas para tasks de feature completa"
+      },
+      "testsPassed": {
+        "type": "boolean",
+        "required": false,
+        "description": "true se 'npm run test' passou. Obrigatório se a task criou testes"
+      },
+      "criteriaVerified": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "fields": {
+            "criterionId": { "type": "integer", "description": "Número do critério (1, 2, 3...)" },
+            "description": { "type": "string", "description": "Texto do critério de verificação" },
+            "verified": { "type": "boolean", "description": "Se foi verificado" },
+            "evidence": { "type": "string", "description": "Como foi verificado (log, url, screenshot path)" }
+          }
+        },
+        "minItems": 1,
+        "required": true,
+        "description": "Todos os critérios de verificação da task, com prova de verificação"
+      },
+      "functionalEvidence": {
+        "type": "string",
+        "required": true,
+        "description": "Evidência funcional específica: output de comando, URL que responde, log de execução, ou caminho de screenshot"
+      },
+      "filesCreated": {
+        "type": "array",
+        "items": { "type": "string" },
+        "required": true,
+        "description": "Lista de arquivos criados/modificados nesta task"
+      },
+      "commitHash": {
+        "type": "string",
+        "required": false,
+        "description": "Hash do commit que contém as mudanças desta task"
+      },
+      "completedAt": {
+        "type": "string",
+        "format": "ISO8601",
+        "required": true,
+        "description": "Timestamp de quando GAMMA declarou conclusão"
+      },
+      "attemptNumber": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 3,
+        "required": true,
+        "default": 1,
+        "description": "Número da tentativa atual (1, 2 ou 3)"
+      }
+    },
+    "antiCheatRules": [
+      "typeCheckPassed DEVE ser true. Sem exceção.",
+      "lintPassed DEVE ser true. Sem exceção.",
+      "criteriaVerified DEVE ter todos os itens com verified=true.",
+      "functionalEvidence NÃO pode ser string vazia.",
+      "filesCreated NÃO pode ser array vazio.",
+      "Se qualquer regra falhar → DELTA emite REJECTED automaticamente."
+    ]
+  },
+
+  "TaskCompletionSchema": {
+    "description": "Estado final de uma task após avaliação do DELTA",
+    "fields": {
+      "taskId": { "type": "string", "required": true },
+      "status": {
+        "type": "string",
+        "enum": ["PENDING", "IN_PROGRESS", "COMPLETED", "REJECTED", "ESCALATED"],
+        "required": true
+      },
+      "evidence": {
+        "type": "object",
+        "ref": "TaskEvidenceSchema",
+        "required": true,
+        "description": "Evidências preenchidas por GAMMA"
+      },
+      "deltaVerdict": {
+        "type": "string",
+        "enum": ["APPROVED", "REJECTED", "ESCALATED"],
+        "required": false,
+        "description": "Veredito do DELTA. null enquanto em revisão."
+      },
+      "rejectionReason": {
+        "type": "string",
+        "required": false,
+        "description": "Preenchido apenas quando deltaVerdict=REJECTED"
+      },
+      "attemptCount": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3,
+        "required": true,
+        "default": 0,
+        "description": "Contador de tentativas de aprovação. >= 3 aciona escalação."
+      }
+    }
+  },
+
+  "thresholds": {
+    "max_task_hours": 4,
+    "max_correction_attempts": 3,
+    "min_criteria_per_task": 1,
+    "required_always": ["typeCheckPassed", "lintPassed", "criteriaVerified", "functionalEvidence"]
+  },
+
+  "example_evidence": {
+    "taskId": "TASK-001",
+    "tasksFile": "docs/TASKS-auth-sprint1.md",
+    "typeCheckPassed": true,
+    "lintPassed": true,
+    "buildPassed": true,
+    "testsPassed": true,
+    "criteriaVerified": [
+      {
+        "criterionId": 1,
+        "description": "Endpoint /api/auth retorna 200 com token válido",
+        "verified": true,
+        "evidence": "curl -X POST http://localhost:3000/api/auth → {token: 'eyJ...'} HTTP 200"
+      },
+      {
+        "criterionId": 2,
+        "description": "Zod valida e rejeita payload inválido com 422",
+        "verified": true,
+        "evidence": "curl -X POST http://localhost:3000/api/auth -d '{}' → HTTP 422 {error: 'email required'}"
+      }
+    ],
+    "functionalEvidence": "Logs/TASK-001-evidence.txt (output completo do validate_delivery.sh)",
+    "filesCreated": [
+      "src/app/api/auth/route.ts",
+      "src/lib/schemas/auth.schema.ts",
+      "src/lib/auth/validate-token.ts"
+    ],
+    "commitHash": "a1b2c3d4",
+    "completedAt": "2026-04-12T15:30:00Z",
+    "attemptNumber": 1
+  }
+}
