@@ -1,0 +1,62 @@
+id: "ADR-001"
+title: "PostgreSQL via Neon como banco de dados obrigatório"
+status: "active"
+date: "2026-02-01"
+superseded_by: null
+authors: ["BETA", "THETA"]
+tags: ["database", "stack"]
+
+context: |
+  Precisávamos de um banco serverless, compatível com pgvector para embeddings,
+  com pooling nativo e zero cold-start relevante. A Stack Omega exige consistência
+  entre projetos para reduzir overhead de onboarding e manutenção.
+
+decision: |
+  Todo projeto usa exclusivamente PostgreSQL hospedado no Neon com Drizzle ORM.
+  Neon fornece pooling serverless, pgvector nativo, branching para testes e
+  integração direta com Vercel. Drizzle é type-safe, performance-first e sem
+  abstrações desnecessárias (diferente de Prisma que adiciona query engine).
+
+alternatives_considered:
+  - option: "Prisma + PlanetScale (MySQL)"
+    rejected_because: "Vendor lock-in no PlanetScale, Prisma query engine adiciona 10MB+ ao bundle"
+  - option: "Supabase (PostgreSQL gerenciado)"
+    rejected_because: "Mais caro em escala, SDK proprietário aumenta lock-in"
+  - option: "SQLite (local/Turso)"
+    rejected_because: "Sem suporte a pgvector, inconsistência entre dev e prod"
+
+consequences:
+  positive:
+    - "pgvector nativo — RAG sem infra adicional"
+    - "Drizzle gera zero overhead em produção"
+    - "Neon branching permite testes com dados reais sem risco"
+    - "Consistência total entre todos os projetos"
+  negative:
+    - "Lock-in no Neon (mitigado: PostgreSQL padrão, portável)"
+    - "Curva de aprendizado do Drizzle vs Prisma (menor, compensa)"
+
+machine_validation:
+  enabled: true
+  checks:
+    - type: "package_json_must_have"
+      description: "Drizzle ORM obrigatório"
+      values: ["drizzle-orm", "@neondatabase/serverless"]
+
+    - type: "package_json_must_not_have"
+      description: "ORMs e bancos proibidos"
+      values: ["prisma", "@prisma/client", "mysql2", "sqlite3", "better-sqlite3", "mongoose", "typeorm"]
+
+    - type: "file_must_exist"
+      description: "Configuração Drizzle obrigatória"
+      patterns: ["drizzle.config.ts"]
+
+    - type: "file_must_not_contain"
+      description: "Schema Prisma proibido"
+      file_glob: "**/*.prisma"
+      patterns: ["mysql", "sqlite"]
+
+violations:
+  severity: "BLOCKING"
+  action: "notify_theta_delta"
+  message: "ADR-001 violado: banco de dados não é PostgreSQL/Neon via Drizzle. Ver Stack Omega em Minhas_Rules/STACK_OMEGA_RULES.md"
+  exemption_allowed: false

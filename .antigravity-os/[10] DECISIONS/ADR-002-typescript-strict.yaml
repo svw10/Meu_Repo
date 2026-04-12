@@ -1,0 +1,57 @@
+id: "ADR-002"
+title: "TypeScript strict mode obrigatório em todos os projetos"
+status: "active"
+date: "2026-02-01"
+superseded_by: null
+authors: ["BETA", "THETA"]
+tags: ["typescript", "stack", "quality"]
+
+context: |
+  Projetos com TypeScript loosely typed geram erros em runtime que seriam
+  detectados em compile time. O histórico de erros no MEMORY_DNA mostra
+  que 60%+ dos bugs do tipo "undefined is not a function" vêm de
+  tipagem fraca ou ausência de strict mode.
+
+decision: |
+  Todo projeto usa TypeScript com strict: true, noUncheckedIndexedAccess,
+  exactOptionalPropertyTypes e noImplicitAny. O tipo 'any' é proibido —
+  use 'unknown' + validação estrutural com Zod. A validação de entrada
+  externa SEMPRE usa Zod, nunca type assertions.
+
+alternatives_considered:
+  - option: "TypeScript sem strict (permissivo)"
+    rejected_because: "Permite any silenciosamente, bugs chegam em produção"
+  - option: "JSDoc em JavaScript puro"
+    rejected_because: "Sem verificação em compile time, IDE support inferior"
+
+consequences:
+  positive:
+    - "Bugs detectados em compile time, não em produção"
+    - "Refactoring seguro — o compilador aponta quebras"
+    - "Documentação implícita via tipos"
+  negative:
+    - "Curva de aprendizado inicial mais alta"
+    - "Código verboso em alguns casos (trade-off aceito)"
+
+machine_validation:
+  enabled: true
+  checks:
+    - type: "file_must_contain"
+      description: "tsconfig.json com strict mode"
+      file: "tsconfig.json"
+      patterns: ["\"strict\": true"]
+
+    - type: "file_must_not_contain"
+      description: "Proibido 'any' explícito no código fonte"
+      file_glob: "src/**/*.ts"
+      patterns: [": any", "as any", "<any>"]
+
+    - type: "package_json_must_have"
+      description: "Zod para validação de entrada"
+      values: ["zod"]
+
+violations:
+  severity: "BLOCKING"
+  action: "notify_theta_delta"
+  message: "ADR-002 violado: TypeScript strict mode não está ativo ou código contém 'any'. Use 'unknown' + Zod."
+  exemption_allowed: false

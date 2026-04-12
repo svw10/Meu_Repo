@@ -23,7 +23,8 @@
   ├── [01] mode-router.json       # Regras de transição entre modos
   ├── [02] token-budget-controller.json # Limites de tokens por tarefa
   ├── [03] mode-transition-protocol.md  # Protocolo de transição entre modos
-  └── [04] anxiety-detector.md    # ⭐ Detecção de degradação comportamental do modelo
+  ├── [04] anxiety-detector.md    # ⭐ Detecção de degradação comportamental do modelo
+  └── [05] active-log-consultation.md # ⭐ Consulta ativa de logs antes de iniciar tarefa
 
 [01] ORCHESTRATOR/    ← Rágio de roteamento, escalação e autocorreção
   ├── [00] semantic-router.md      # Roteamento com validação de budget
@@ -75,11 +76,20 @@
   ├── [02] validate-structure.sh
   ├── [03] sync-memory.sh
   ├── [04] generate-evolution-log.sh
-  └── [05] retro-collector.sh
+  ├── [05] retro-collector.sh
+  ├── [06] security-scan.sh       # Secrets, PII, path traversal, URLs
+  ├── [07] mode-transition.sh     # Transição automática entre modos
+  └── [08] validate-stack-compliance.sh # ⭐ Valida ADRs: database, TS strict, auth
 
 [09] RETROSPECTIVE/   ← Aprendizado Contínuo
   ├── [00] project-sweeper.md  # Workflow /retro
   └── evolution-log.md         # Histórico de versões
+
+[10] DECISIONS/       ← ADRs machine-readable (parseable por ZETA /drift e CI)
+  ├── ADR-000-template.yaml        # Template base para novos ADRs
+  ├── ADR-001-database-postgresql-neon.yaml # DB: Neon + Drizzle obrigatório
+  ├── ADR-002-typescript-strict.yaml       # TS: strict mode + zero any + Zod
+  └── ADR-003-auth-clerk.yaml              # Auth: Clerk obrigatório
 
 [11] HANDOFF_ARTIFACTS/ ← Artefatos imutáveis de passagem de bastão
   ├── README.md                # Índice: ativos e consumidos por sprint

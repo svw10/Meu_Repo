@@ -1,0 +1,73 @@
+---
+# ADR Template — Antigravity OS v3.1
+# Machine-Readable Architecture Decision Record
+# Copie este arquivo, renomeie para ADR-[NNN]-[slug].yaml e preencha
+
+id: "ADR-000"
+title: "Template de Decision Record"
+status: "template"  # active | deprecated | superseded | draft
+date: "YYYY-MM-DD"
+superseded_by: null  # "ADR-XXX" se esta decisão foi substituída
+authors: ["BETA", "THETA"]
+tags: ["stack", "security", "database", "auth", "performance"]
+
+# Por que esta decisão foi necessária
+context: |
+  [Qual problema estava sendo resolvido.
+  Qual era a situação antes desta decisão.
+  Quais forças (técnicas, negócio, restrições) influenciaram.]
+
+# O que foi decidido e por quê
+decision: |
+  [O que foi escolhido.
+  Por que esta opção foi preferida sobre as alternativas.
+  Inclua trade-offs aceitos deliberadamente.]
+
+# Alternativas consideradas e descartadas
+alternatives_considered:
+  - option: "[Opção A]"
+    rejected_because: "[Motivo técnico ou de negócio]"
+  - option: "[Opção B]"
+    rejected_because: "[Motivo técnico ou de negócio]"
+
+# Consequências desta decisão (positivas e negativas)
+consequences:
+  positive:
+    - "[Benefício 1]"
+    - "[Benefício 2]"
+  negative:
+    - "[Trade-off 1 aceito]"
+    - "[Limitação conhecida]"
+
+# VALIDAÇÃO MECÂNICA — ZETA e CI executam automaticamente
+machine_validation:
+  enabled: true
+  checks:
+    - type: "package_json_must_have"
+      description: "Dependências obrigatórias"
+      values: []  # ex: ["drizzle-orm", "next"]
+
+    - type: "package_json_must_not_have"
+      description: "Dependências proibidas"
+      values: []  # ex: ["moment", "prisma", "mysql2"]
+
+    - type: "file_must_exist"
+      description: "Arquivos que devem existir"
+      patterns: []  # ex: ["src/lib/db.ts", "drizzle.config.ts"]
+
+    - type: "file_must_contain"
+      description: "Conteúdo obrigatório em arquivo"
+      file: ""  # ex: "tsconfig.json"
+      patterns: []  # ex: ["\"strict\": true"]
+
+    - type: "file_must_not_contain"
+      description: "Padrões proibidos no código"
+      file_glob: ""  # ex: "src/**/*.ts"
+      patterns: []  # ex: ["prisma", "import SQLite"]
+
+# O que acontece se a validação falhar
+violations:
+  severity: "BLOCKING"  # BLOCKING | WARNING | INFO
+  action: "notify_theta_delta"  # notify_theta_delta | block_commit | open_pr
+  message: "[Mensagem clara do que foi violado e como corrigir]"
+  exemption_allowed: false  # true = pode ter exceção via ADR superseded_by

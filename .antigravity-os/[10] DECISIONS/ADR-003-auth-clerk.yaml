@@ -1,0 +1,57 @@
+id: "ADR-003"
+title: "Clerk como provedor de autenticação obrigatório"
+status: "active"
+date: "2026-02-01"
+superseded_by: null
+authors: ["BETA", "THETA"]
+tags: ["auth", "security", "stack"]
+
+context: |
+  Auth é infraestrutura crítica e não deve ser reinventada. O histórico de
+  projetos mostra que implementações caseiras de JWT/session management
+  introduzem vulnerabilidades (tokens sem rotação, CSRF, session fixation).
+  Clerk cobre MFA, RBAC, social logins e está integrado nativamente ao Next.js.
+
+decision: |
+  Todo projeto usa Clerk como único provedor de autenticação. A extração
+  de sessão segue sempre o padrão auth() server-side. Middleware protege
+  rotas privadas. Dados de usuário NUNCA são consultados no client-side
+  sem passar pelo servidor. JWT usa RS256 (nunca HS256).
+
+alternatives_considered:
+  - option: "Auth.js (NextAuth)"
+    rejected_because: "Configuração complexa, sem RBAC nativo, requer banco para sessions"
+  - option: "Supabase Auth"
+    rejected_because: "Lock-in no Supabase, inconsistente com banco Neon"
+  - option: "JWT caseiro"
+    rejected_because: "Sem MFA, rotação manual de chaves, superfície de ataque ampla"
+
+consequences:
+  positive:
+    - "MFA, RBAC, social login out-of-the-box"
+    - "Integração nativa com Next.js middleware"
+    - "Compliance LGPD/GDPR simplificado (Clerk é certificado)"
+  negative:
+    - "Lock-in no Clerk (mitigado: dados de usuário exportáveis)"
+    - "Custo por MAU em escala (aceitável até 10k users free tier)"
+
+machine_validation:
+  enabled: true
+  checks:
+    - type: "package_json_must_have"
+      description: "Clerk SDK obrigatório"
+      values: ["@clerk/nextjs"]
+
+    - type: "package_json_must_not_have"
+      description: "Providers de auth proibidos"
+      values: ["next-auth", "lucia", "iron-session", "jsonwebtoken", "passport"]
+
+    - type: "file_must_exist"
+      description: "Middleware de auth obrigatório"
+      patterns: ["middleware.ts", "src/middleware.ts"]
+
+violations:
+  severity: "BLOCKING"
+  action: "notify_theta_delta"
+  message: "ADR-003 violado: autenticação não usa Clerk. Proibido auth caseiro ou providers alternativos."
+  exemption_allowed: false
