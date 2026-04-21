@@ -18,3 +18,10 @@ status: active
 **Handoff:** Após execução, atualize context/CURRENT_AGENT.md e retorne ao THETA.
 
 ---
+
+### 🗺️ Mapeamento e Entry Points Rapidos
+| Entrada / Intenção | Mapeamento (Skill) | Camada |
+|--------------------|--------------------|--------|
+| "Memória persistente...", "RAG de logs" | 13_memoria_persistente | 4 |
+
+---

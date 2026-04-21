@@ -8,13 +8,13 @@ tags: [core, kernel, router, sistema, indice, arquitetura]
 
 > **Sistema**: Antigravity OS  
 > **Versão**: 3.0.2 (Final)  
-> **Total de Skills**: 12  
+> **Total de Skills**: 13  
 > **Última atualização**: 2026-02-22
 
 ## 🎯 Propósito
 
 Este é o **Kernel do Sistema** - o mapa canônico que define:
-- Quais skills existem (12 total)
+- Quais skills existem (13 total)
 - Em qual camada operam (1-4 + CORE)
 - Como se relacionam (dependências)
 - Versão atual de cada uma
@@ -67,7 +67,7 @@ Copy
 
 ---
 
-## 📋 Índice Canônico (12 Skills)
+## 📋 Índice Canônico (13 Skills)
 
 | # | Skill | Camada | Descrição | Versão | Status |
 |---|-------|--------|-----------|--------|--------|
@@ -84,6 +84,7 @@ Copy
 | 10 | `llm-app-blueprint` | 4 | Arquitetura de aplicações LLM | 3.0.0 | ✅ Ativo |
 | 11 | `pesquisando-web` | 4 | Research competitivo e web scraping | 3.0.0 | ✅ Ativo |
 | 12 | `usando-skills` | CORE | Supervisor/Entry point universal | 3.0.1 | ✅ Ativo |
+| 13 | `memoria-persistente` | 4 | Memória conversacional persistente + RAG + LGPD | 3.0.0 | ✅ Ativo |
 
 ---
 
@@ -112,7 +113,8 @@ Minhas_Skills/
 │
 └── DOMINIO_IA/                         # 🤖 Camada 4: Especialização
 ├── 10_llm_app_blueprint.md
-└── 11_pesquisando_web.md
+├── 11_pesquisando_web.md
+└── 13_memoria_persistente.md
 plain
 Copy
 
