@@ -1,0 +1,216 @@
+# 🔒 CI/CD Security Pipeline — SAST/DAST/SCA/Secrets Scan
+# Complementa o pipeline existente em .github/workflows/antigravity-deploy.yml
+# Use como job adicional ou como workflow separado
+
+name: Security Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'  # Segunda-feira 6h UTC — scan semanal
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ═══════════════════════════════════════════════
+  # GATE: SAST — Static Application Security Testing
+  # ═══════════════════════════════════════════════
+  sast:
+    name: 🔍 SAST — Análise Estática
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Semgrep SAST Scan
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/javascript
+            p/typescript
+            p/react
+            p/nextjs
+            p/owasp-top-ten
+            p/security-audit
+          generateSarif: "1"
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+
+  # ═══════════════════════════════════════════════
+  # GATE: Secrets Scan
+  # ═══════════════════════════════════════════════
+  secrets-scan:
+    name: 🔑 Secrets Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history para detectar secrets antigos
+
+      - name: TruffleHog Secrets Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --only-verified
+
+      - name: GitLeaks Scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ═══════════════════════════════════════════════
+  # GATE: SCA — Software Composition Analysis
+  # ═══════════════════════════════════════════════
+  sca:
+    name: 📦 SCA — Dependências
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'npm' }
+      - run: npm ci
+
+      - name: NPM Audit
+        run: npm audit --production --audit-level=high
+
+      - name: Snyk Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+      - name: License Check
+        run: npx license-checker --production --failOn "GPL-3.0;AGPL-3.0"
+
+  # ═══════════════════════════════════════════════
+  # GATE: Container Security (se Dockerfile existir)
+  # ═══════════════════════════════════════════════
+  container-scan:
+    name: 🐳 Container Scan
+    runs-on: ubuntu-latest
+    if: hashFiles('Dockerfile') != ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Image
+        run: docker build -t app:scan .
+
+      - name: Trivy Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'app:scan'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Dockle Lint
+        uses: erzz/dockle-action@v1
+        with:
+          image: 'app:scan'
+          failure-threshold: WARN
+
+  # ═══════════════════════════════════════════════
+  # GATE: Custom Security Checks (Antigravity OS)
+  # ═══════════════════════════════════════════════
+  antigravity-security:
+    name: 🛡️ Antigravity Security Gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for NEXT_PUBLIC secrets
+        run: |
+          echo "🔍 Verificando secrets em variáveis públicas..."
+          if grep -rn "NEXT_PUBLIC_.*SECRET\|NEXT_PUBLIC_.*PASSWORD\|VITE_.*SECRET" \
+            --include="*.env*" --include="*.ts" --include="*.js" .; then
+            echo "❌ Secrets encontrados em variáveis públicas!"
+            exit 1
+          fi
+          echo "✅ Nenhum secret em variáveis públicas."
+
+      - name: Check for hardcoded secrets
+        run: |
+          echo "🔍 Verificando secrets hardcoded..."
+          if grep -rn "sk-[a-zA-Z0-9]\{20,\}\|sk_live_\|sk_test_[a-zA-Z0-9]\{20,\}" \
+            --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" \
+            --exclude-dir=node_modules --exclude-dir=.next .; then
+            echo "❌ Secrets hardcoded encontrados!"
+            exit 1
+          fi
+          echo "✅ Nenhum secret hardcoded."
+
+      - name: Check for disabled RLS
+        run: |
+          echo "🔍 Verificando RLS..."
+          if grep -rn "DISABLE ROW LEVEL\|USING (true)\|WITH CHECK (true)" \
+            --include="*.sql" .; then
+            echo "❌ RLS desabilitado ou policy permissiva!"
+            exit 1
+          fi
+          echo "✅ RLS OK."
+
+      - name: Check for dangerous patterns
+        run: |
+          echo "🔍 Verificando padrões perigosos..."
+          FOUND=0
+          
+          # eval() com variáveis
+          if grep -rn "eval(" --include="*.ts" --include="*.js" \
+            --exclude-dir=node_modules .; then
+            echo "⚠️ eval() encontrado"
+            FOUND=1
+          fi
+          
+          # dangerouslySetInnerHTML
+          if grep -rn "dangerouslySetInnerHTML" --include="*.tsx" --include="*.jsx" \
+            --exclude-dir=node_modules .; then
+            echo "⚠️ dangerouslySetInnerHTML encontrado"
+            FOUND=1
+          fi
+          
+          # console.log em produção
+          if grep -rn "console.log\|console.warn\|console.error" \
+            --include="*.ts" --include="*.tsx" \
+            --exclude-dir=node_modules --exclude="logger.*" .; then
+            echo "⚠️ console.log encontrado (deveria usar logger)"
+          fi
+          
+          if [ $FOUND -eq 1 ]; then
+            echo "❌ Padrões perigosos detectados — revisar!"
+            exit 1
+          fi
+          echo "✅ Nenhum padrão perigoso crítico."
+
+  # ═══════════════════════════════════════════════
+  # REPORT: Consolidação
+  # ═══════════════════════════════════════════════
+  security-report:
+    name: 📊 Security Report
+    runs-on: ubuntu-latest
+    needs: [sast, secrets-scan, sca, antigravity-security]
+    if: always()
+    steps:
+      - name: Security Gate Summary
+        run: |
+          echo "## 🛡️ Security Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Gate | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| SAST | ${{ needs.sast.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secrets | ${{ needs.secrets-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SCA | ${{ needs.sca.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Antigravity | ${{ needs.antigravity-security.result }} |" >> $GITHUB_STEP_SUMMARY
